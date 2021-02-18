@@ -34,6 +34,10 @@ const data = fakeRequest(true)
 //  * With Postman (HTTP Client with GUI)
 //  * With Chrome and the Network Tab
 //  * With JS using the native fetch [STRETCH]
+fetch('https://lambda-times-api.herokuapp.com/friends')
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(err => console.log(err))
 
 
 // 👉 TASK 2- Select the "entry point", the element
@@ -64,7 +68,7 @@ function dogCardMaker({ imageURL, breed }) {
   return dogCard
 }
 
-entryPoint.appendChild(dogCardMaker({ imageURL: 'https://www.dogtrophy.com/wp-content/uploads/2018/03/Xoloitzcuintli-dogtrophy.jpg', breed: 'Mexican Hairless'}))
+// entryPoint.appendChild(dogCardMaker({ imageURL: 'https://www.dogtrophy.com/wp-content/uploads/2018/03/Xoloitzcuintli-dogtrophy.jpg', breed: 'Mexican Hairless'}))
 
 
 // 👉 TASK 4- Bring the Axios library into the project using one of two methods:
@@ -76,21 +80,58 @@ entryPoint.appendChild(dogCardMaker({ imageURL: 'https://www.dogtrophy.com/wp-co
 //    * ON SUCCESS: use the data to create dogCards and append them to the entry point
 //    * ON FAILURE: log the error to the console
 //    * IN ANY CASE: log "done" to the console
-axios.get('https://dog.ceo/api/breed/dachshund/images/random/1') //this is a Promise
-.then(({data}) => {
-  // {... data: { message: ['url'] } }
-  const imageURL = data.message[0]
-  entryPoint.appendChild(dogCardMaker({imageURL, breed: 'Dachshund'}))
-})
-
+// axios.get('https://dog.ceo/api/breed/dachshund/images/random/1') //this is a Promise
+// .then(({data}) => {
+//   // {... data: { message: ['url'] } }
+//   const imageURL = data.message[0]
+//   entryPoint.appendChild(dogCardMaker({imageURL, breed: 'Dachshund'}))
+// })
 
 // 👉 (OPTIONAL) TASK 6- Wrap the fetching operation inside a function `getDogs`
 // that takes a breed and a count (of dogs)
+
+const getDogs = (breed, count) => {
+  axios.get(`https://dog.ceo/api/breed/${breed}/images/random/${count}`)
+  .then(({data}) => {
+    const imageURL = data.message[0]
+    const dogCard = dogCardMaker({imageURL, breed})
+    entryPoint.appendChild(dogCard)
+  })
+  .catch(err => console.log(errr))
+}
+
+const fetchDogs = (breed, count) => {
+  fetch(`https://dog.ceo/api/breed/${breed}/images/random/${count}`)
+  .then(response => response.json())
+  .then(data => {
+    console.log('data', data)
+    const imageURL = data.message[0]
+    const dogCard = dogCardMaker({imageURL, breed})
+    entryPoint.appendChild(dogCard)
+  })
+  .catch(err => console.log(err))
+}
+
+// getDogs('dachshund', 1)
+// getDogs('chihuahua', 1)
+// getDogs('pitbull', 1)
 
 
 // 👉 (OPTIONAL) TASK 7- Put a button in index.html to 'get dogs' and add a click
 // event listener that executes `getDogs`
 
+const dogButton = document.querySelector('button#get-dog-btn')
+// dogButton.onclick = () => console.log('yolo!!!')
+dogButton.addEventListener('click', () => {
+  // getDogs('dachshund', 1)
+  axios.get('https://lambda-times-api.herokuapp.com/breeds')
+  .then(({data}) => {
+    //filtering out cocker because we are getting 404 (not found error)
+    const breeds = data.filter(breed => breed !== "cocker")
+    breeds.forEach(breed => fetchDogs(breed, 1))
+  })
+  .catch(err => console.log(err))
+})
 
 // 👉 (OPTIONAL) TASK 8- Import the breeds from `breeds.js`
 // or request them from https://lambda-times-api.herokuapp.com/breeds
