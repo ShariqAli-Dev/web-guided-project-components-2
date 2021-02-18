@@ -1,6 +1,25 @@
 // Imports at the top of the file!
 // We never nest imports inside blocks of code!
+import axios from 'axios'
 
+function fakeRequest(arg) {
+  return new Promise((resolve, reject) => {
+    if (arg) {
+      return resolve({ success: true, data: { foo: "bar" }})
+    } else {
+      return reject({sucess: false, error: 'bad juju'})
+    }
+  })
+}
+
+const data = fakeRequest(true)
+.then(data => {
+  // console.log('inside .then', data)
+  return data
+})
+.catch(err => console.log(err))
+
+// console.log('printing data!', data)
 
 // 👉 TASK 1- Test out the following endpoints:
 
@@ -19,7 +38,7 @@
 
 // 👉 TASK 2- Select the "entry point", the element
 // inside of which we'll inject our dog cards 
-const entryPoint = null
+const entryPoint = document.querySelector('div.entry')
 
 
 // 👉 TASK 3- `dogCardMaker` takes an object and returns a Dog Card.
@@ -45,6 +64,8 @@ function dogCardMaker({ imageURL, breed }) {
   return dogCard
 }
 
+entryPoint.appendChild(dogCardMaker({ imageURL: 'https://www.dogtrophy.com/wp-content/uploads/2018/03/Xoloitzcuintli-dogtrophy.jpg', breed: 'Mexican Hairless'}))
+
 
 // 👉 TASK 4- Bring the Axios library into the project using one of two methods:
 //    * Traditional way: put another script tag inside index.html (`https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js`)
@@ -55,6 +76,12 @@ function dogCardMaker({ imageURL, breed }) {
 //    * ON SUCCESS: use the data to create dogCards and append them to the entry point
 //    * ON FAILURE: log the error to the console
 //    * IN ANY CASE: log "done" to the console
+axios.get('https://dog.ceo/api/breed/dachshund/images/random/1') //this is a Promise
+.then(({data}) => {
+  // {... data: { message: ['url'] } }
+  const imageURL = data.message[0]
+  entryPoint.appendChild(dogCardMaker({imageURL, breed: 'Dachshund'}))
+})
 
 
 // 👉 (OPTIONAL) TASK 6- Wrap the fetching operation inside a function `getDogs`
