@@ -1,8 +1,21 @@
 // Imports at the top of the file!
 // We never nest imports inside blocks of code!
+import axios from 'axios'
 
 
 // 👉 TASK 1- Test out the following endpoints:
+
+/*
+
+HTTP Methods
+
+crud operators    HTTP Methods
+      C               POST
+      R               GET
+      U               PUT
+      D               DELETE
+
+*/
 
 //  https://lambda-times-api.herokuapp.com/friends
 //  https://lambda-times-api.herokuapp.com/friends/1
@@ -19,11 +32,17 @@
 
 // 👉 TASK 2- Select the "entry point", the element
 // inside of which we'll inject our dog cards 
-const entryPoint = null
+const entryPoint = document.querySelector('div.entry')
 
 
 // 👉 TASK 3- `dogCardMaker` takes an object and returns a Dog Card.
 // Use this function to build a Card, and append it to the entry point.
+const dog = {
+  breed: 'Cocker Spaniel', 
+  imageURL: 'https://cdn.pixabay.com/photo/2017/09/25/13/12/dog-2785074__340.jpg'
+}
+entryPoint.appendChild(dogCardMaker(dog))
+
 function dogCardMaker({ imageURL, breed }) {
   // instantiating the elements
   const dogCard = document.createElement('div')
@@ -56,13 +75,57 @@ function dogCardMaker({ imageURL, breed }) {
 //    * ON FAILURE: log the error to the console
 //    * IN ANY CASE: log "done" to the console
 
+// axios.get('https://dog.ceo/api/breed/chihuahua/images/random/1')
+// .then(response => console.log(response))
+// .catch(error => console.error("Failed to get dog info:", error))
+
 
 // 👉 (OPTIONAL) TASK 6- Wrap the fetching operation inside a function `getDogs`
 // that takes a breed and a count (of dogs)
 
+const getDogs = (breed, count) => {
+  axios.get(`https://dog.ceo/api/breed/${breed}/images/random/${count}`)
+  .then(({data}) => {
+    const imageURL = data.message[0]
+    const card = dogCardMaker({imageURL, breed})
+    entryPoint.appendChild(card)
+  })
+  .catch(err => console.log(err))
+}
+
+
+// NESTED axios example
+// function getDogs(count) {
+//   axios.get('https://lambda-times-api.herokuapp.com/breeds')
+//   .then(({data}) => {
+//     const breeds = data
+//     breeds.forEach(breed => {
+//       axios.get(`https://dog.ceo/api/breed/${breed}/images/random/${count}`)
+//       .then(({data}) => {
+//         console.log(data)
+//         const url = data.message[0]
+//         const dogCard = dogCardMaker({imageURL: url, breed})
+//         entryPoint.appendChild(dogCard)
+//       })
+//       .catch(err => console.log(err))
+//     })
+//   })
+//   .catch(err => console.error(err))
+// }
 
 // 👉 (OPTIONAL) TASK 7- Put a button in index.html to 'get dogs' and add a click
 // event listener that executes `getDogs`
+document.querySelector('#get-dog-btn').addEventListener('click', () => {
+  axios.get('https://lambda-times-api.herokuapp.com/breeds')
+  .then(({data}) => {
+    // cocker is throwing 404, so removing that from breeds array
+    const breeds = data.filter(breed => breed != 'cocker')
+    breeds.forEach(breed => {
+      getDogs(breed, 1)
+    })
+  })
+  .catch(err => console.log(err))
+})
 
 
 // 👉 (OPTIONAL) TASK 8- Import the breeds from `breeds.js`
