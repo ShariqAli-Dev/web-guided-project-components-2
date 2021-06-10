@@ -101,7 +101,7 @@ getDogsButton.addEventListener('click', () => {
     breeds.forEach(breed => {
       getDogs(breed);
       if(breed === 'cocker') {
-        return undefined;
+        getDogs('spaniel/cocker');
       }
     });
   })
